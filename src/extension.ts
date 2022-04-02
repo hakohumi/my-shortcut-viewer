@@ -20,25 +20,46 @@ export function activate(context: vscode.ExtensionContext) {
     async () => {
       // The code you place here will be executed every time your command is executed
       // Display a message box to the user
-      let b = vscode.commands
-        .executeCommand('workbench.action.openGlobalKeybindings')
-        .then(() =>
-          vscode.commands.executeCommand(
-            'keybindings.editor.showUserKeybindings'
-          )
+
+      // let b = vscode.commands
+      //   .executeCommand('workbench.action.openGlobalKeybindings')
+      //   .then(() =>
+      //     vscode.commands.executeCommand(
+      //       'keybindings.editor.showUserKeybindings'
+      //     )
+      //   )
+
+      const getCommands = vscode.commands.getCommands().then((v) => {
+        let row = v
+        // let row = v.filter((it) => it.indexOf('') !== -1)
+        vscode.window.showInformationMessage(
+          row.map((it, index) => `${index}: ${it}`).join('\n')
         )
+        vscode.window.showInformationMessage(row.length.toString())
+
+        row.forEach((it) => console.log(it))
+        return row
+      })
+
+      vscode.window
+        .showQuickPick(getCommands, {
+          matchOnDescription: true,
+          placeHolder: '選択したコマンドを実行します。',
+        })
+        .then((it) => {
+          if (it === undefined) {
+            return
+          }
+
+          console.log(`selected ${it}`)
+          vscode.window.showInformationMessage(`selected ${it}`)
+
+          vscode.commands.executeCommand(it)
+        })
+
+      // callback end
     }
   )
-
-  vscode.commands.getCommands().then((v) => {
-    let row = v.filter((it) => it.indexOf('extension.') !== -1)
-    vscode.window.showInformationMessage(
-      row.map((it, index) => `${index}: ${it}`).join('\n')
-    )
-    vscode.window.showInformationMessage(row.length.toString())
-
-    row.forEach((it) => console.log(it))
-  })
 
   context.subscriptions.push(disposable)
 }
