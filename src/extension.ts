@@ -1,60 +1,75 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
-import { type } from 'os'
+import { promises as fs } from 'fs'
 import * as vscode from 'vscode'
+import { QuickPickItem } from 'vscode'
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
-export function activate(context: vscode.ExtensionContext) {
+export async function activate(context: vscode.ExtensionContext) {
   // Use the console to output diagnostic information (console.log) and errors (console.error)
   // This line of code will only be executed once when your extension is activated
   console.log(
     'Congratulations, your extension "myshortcutviewer" is now active!'
   )
 
+  vscode.commands
+    .executeCommand('keybindings.editor.searchKeybindings', {
+      value: 'keybindings.editor.searchKeybindings',
+    })
+    .then((it) => console.log(`test : ${it}`))
+
+  const getCommands = vscode.commands.getCommands().then((v) => {
+    const row = v.filter((it) => it.indexOf('keybindings') !== -1)
+    vscode.window.showInformationMessage(
+      row.map((it, index) => `${index}: ${it}`).join('\n')
+    )
+    vscode.window.showInformationMessage(row.length.toString())
+
+    row.forEach((it) => console.log(it))
+    return row
+  })
+
+  const keybindings = await parseKeybindingsJson()
+
   // The command has been defined in the package.json file
   // Now provide the implementation of the command with registerCommand
   // The commandId parameter must match the command field in package.json
   let disposable = vscode.commands.registerCommand(
     'myshortcutviewer.helloWorld',
-    async () => {
+    () => {
       // The code you place here will be executed every time your command is executed
       // Display a message box to the user
 
-      // let b = vscode.commands
-      //   .executeCommand('workbench.action.openGlobalKeybindings')
-      //   .then(() =>
-      //     vscode.commands.executeCommand(
-      //       'keybindings.editor.showUserKeybindings'
-      //     )
-      //   )
-
-      const getCommands = vscode.commands.getCommands().then((v) => {
-        let row = v
-        // let row = v.filter((it) => it.indexOf('') !== -1)
-        vscode.window.showInformationMessage(
-          row.map((it, index) => `${index}: ${it}`).join('\n')
-        )
-        vscode.window.showInformationMessage(row.length.toString())
-
-        row.forEach((it) => console.log(it))
-        return row
+      // const items = getCommands.then((it) =>
+      //   it.map((it): QuickPickItem => {
+      //     return { label: it, description: '' }
+      //   })
+      // )
+      const items = keybindings.map((it): QuickPickItem => {
+        return { label: it.command, description: it.key }
       })
 
       vscode.window
-        .showQuickPick(getCommands, {
+        .showQuickPick(items, {
           matchOnDescription: true,
           placeHolder: '選択したコマンドを実行します。',
         })
-        .then((it) => {
-          if (it === undefined) {
+        .then((item) => {
+          if (item === undefined) {
             return
           }
 
-          console.log(`selected ${it}`)
-          vscode.window.showInformationMessage(`selected ${it}`)
+          console.log(`selected ${item.label}`)
+          vscode.window.showInformationMessage(`selected ${item.label}`)
 
-          vscode.commands.executeCommand(it)
+          const command = keybindings
+            .map((it) => it.command)
+            .find((it) => it === item.label)
+
+          console.log(`find command => ${command}`)
+
+          vscode.commands.executeCommand(item.label)
         })
 
       // callback end
@@ -66,3 +81,39 @@ export function activate(context: vscode.ExtensionContext) {
 
 // this method is called when your extension is deactivated
 export function deactivate() {}
+
+class KeybindingsJson {
+  constructor(
+    readonly key: string,
+    readonly command: string,
+    readonly when?: string
+  ) {}
+
+  toString() {
+    return `key: ${this.key} command: ${this.command} when: ${this.when}\n`
+  }
+}
+
+async function parseKeybindingsJson() {
+  const readedKeybindingsJsonFile = await fs.readFile(
+    // '%userprofile%\\AppData\\Roaming\\Code\\User\\keybindings.json',
+    'C:\\Users\\Filu\\AppData\\Roaming\\Code\\User\\keybindings.json',
+    { encoding: 'utf-8' }
+  )
+
+  const lineString = readedKeybindingsJsonFile.split('\n')
+
+  const processedJsonString = lineString.filter((it) => {
+    return it.indexOf('//') === -1
+  })
+
+  const preProcessedJsonString = processedJsonString.join('\n')
+
+  const keybindingsJson = (
+    JSON.parse(preProcessedJsonString) as KeybindingsJson[]
+  )
+    .filter((it) => it.command.slice(0, 1) !== '-')
+    .map((it) => new KeybindingsJson(it.key, it.command, it.when))
+
+  return keybindingsJson
+}
