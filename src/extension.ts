@@ -13,18 +13,12 @@ export async function activate(context: vscode.ExtensionContext) {
     'Congratulations, your extension "myshortcutviewer" is now active!'
   )
 
-  vscode.commands
-    .executeCommand('keybindings.editor.searchKeybindings', {
-      value: 'keybindings.editor.searchKeybindings',
-    })
-    .then((it) => console.log(`test : ${it}`))
-
   const getCommands = vscode.commands.getCommands().then((v) => {
     const row = v.filter((it) => it.indexOf('keybindings') !== -1)
-    vscode.window.showInformationMessage(
-      row.map((it, index) => `${index}: ${it}`).join('\n')
-    )
-    vscode.window.showInformationMessage(row.length.toString())
+
+    //   row.map((it, index) => `${index}: ${it}`).join('\n')
+    // )
+    // vscode.window.showInformationMessage(row.length.toString())
 
     row.forEach((it) => console.log(it))
     return row
@@ -47,7 +41,10 @@ export async function activate(context: vscode.ExtensionContext) {
       //   })
       // )
       const items = keybindings.map((it): QuickPickItem => {
-        return { label: it.command, description: it.key }
+        return {
+          label: it.command,
+          description: `${it.key}`,
+        }
       })
 
       vscode.window
