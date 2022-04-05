@@ -13,12 +13,21 @@ export async function activate(context: vscode.ExtensionContext) {
     'Congratulations, your extension "myshortcutviewer" is now active!'
   )
 
-  const getCommands = vscode.commands.getCommands().then((v) => {
-    const row = v.filter((it) => it.indexOf('keybindings') !== -1)
+  let all = await vscode.workspace.getConfiguration('')
 
-    row.forEach((it) => console.log(it))
-    return row
-  })
+  // console.log(`all = ${JSON.stringify(all, null, 2)}`)
+
+  let allAsJSON = JSON.parse(JSON.stringify(all))
+
+  const editorSettings = allAsJSON.files
+
+  console.log(`editorSettings = ${JSON.stringify(editorSettings, null, 2)}`)
+
+  // const getCommands = vscode.commands.getCommands().then((v) => {
+  //   const row = v.filter((it) => it.indexOf('keybindings') !== -1)
+
+  //   return row
+  // })
 
   const keybindings = await parseKeybindingsJson()
 
