@@ -16,10 +16,6 @@ export async function activate(context: vscode.ExtensionContext) {
   const getCommands = vscode.commands.getCommands().then((v) => {
     const row = v.filter((it) => it.indexOf('keybindings') !== -1)
 
-    //   row.map((it, index) => `${index}: ${it}`).join('\n')
-    // )
-    // vscode.window.showInformationMessage(row.length.toString())
-
     row.forEach((it) => console.log(it))
     return row
   })
@@ -94,7 +90,7 @@ class KeybindingsJson {
 async function parseKeybindingsJson() {
   const readedKeybindingsJsonFile = await fs.readFile(
     // '%userprofile%\\AppData\\Roaming\\Code\\User\\keybindings.json',
-    'C:\\Users\\Filu\\AppData\\Roaming\\Code\\User\\keybindings.json',
+    'C:\\Users\\Filu\\AppData\\Roaming\\Code\\User\\keybindings.json', // TODO: 実行環境依存
     { encoding: 'utf-8' }
   )
 
