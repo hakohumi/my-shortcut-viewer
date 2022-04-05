@@ -60,7 +60,7 @@ export async function activate(context: vscode.ExtensionContext) {
             .map((it) => it.command)
             .find((it) => it === item.label)
 
-          console.log(`find command => ${command}`)
+          // console.log(`find command => ${command}`)
 
           vscode.commands.executeCommand(item.label)
         })
@@ -90,9 +90,12 @@ class KeybindingsJson {
 async function parseKeybindingsJson() {
   const readedKeybindingsJsonFile = await fs.readFile(
     // '%userprofile%\\AppData\\Roaming\\Code\\User\\keybindings.json',
-    'C:\\Users\\Filu\\AppData\\Roaming\\Code\\User\\keybindings.json', // TODO: 実行環境依存
+    // TODO: 個々の環境に依存している
+    'C:\\Users\\Filu\\AppData\\Roaming\\Code\\User\\keybindings.json',
     { encoding: 'utf-8' }
   )
+
+  // TODO: ここでsettings.jsonから設定値を読み取る
 
   const lineString = readedKeybindingsJsonFile.split('\n')
 
