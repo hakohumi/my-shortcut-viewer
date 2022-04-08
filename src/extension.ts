@@ -13,39 +13,21 @@ export async function activate(context: vscode.ExtensionContext) {
     'Congratulations, your extension "myshortcutviewer" is now active!'
   )
 
-  let all = await vscode.workspace.getConfiguration('')
+  const getCommands = await vscode.commands.getCommands()
 
-  // console.log(`all = ${JSON.stringify(all, null, 2)}`)
-
-  let allAsJSON = JSON.parse(JSON.stringify(all))
-
-  const editorSettings = allAsJSON.files
-
-  console.log(`editorSettings = ${JSON.stringify(editorSettings, null, 2)}`)
-
-  // const getCommands = vscode.commands.getCommands().then((v) => {
-  //   const row = v.filter((it) => it.indexOf('keybindings') !== -1)
-
-  //   return row
-  // })
-
-  const keybindings = await parseKeybindingsJson()
+  // const keybindings = await parseKeybindingsJson()
 
   // The command has been defined in the package.json file
   // Now provide the implementation of the command with registerCommand
   // The commandId parameter must match the command field in package.json
   let disposable = vscode.commands.registerCommand(
     'myshortcutviewer.helloWorld',
-    () => {
+    async () => {
       // The code you place here will be executed every time your command is executed
       // Display a message box to the user
+      const settingskeybindings = await parseKeybindingsFromSettingJson()
 
-      // const items = getCommands.then((it) =>
-      //   it.map((it): QuickPickItem => {
-      //     return { label: it, description: '' }
-      //   })
-      // )
-      const items = keybindings.map((it): QuickPickItem => {
+      const items = settingskeybindings.map((it): QuickPickItem => {
         return {
           label: it.command,
           description: `${it.key}`,
@@ -65,11 +47,14 @@ export async function activate(context: vscode.ExtensionContext) {
           console.log(`selected ${item.label}`)
           vscode.window.showInformationMessage(`selected ${item.label}`)
 
-          const command = keybindings
-            .map((it) => it.command)
-            .find((it) => it === item.label)
+          const command = getCommands.find((it) => it === item.label)
 
-          // console.log(`find command => ${command}`)
+          if (command === undefined) {
+            console.log(`find not command => ${item.label}`)
+            return
+          }
+
+          console.log(`pre ${typeof command}`)
 
           vscode.commands.executeCommand(item.label)
         })
@@ -86,8 +71,8 @@ export function deactivate() {}
 
 class KeybindingsJson {
   constructor(
-    readonly key: string,
     readonly command: string,
+    readonly key: string,
     readonly when?: string
   ) {}
 
@@ -104,8 +89,6 @@ async function parseKeybindingsJson() {
     { encoding: 'utf-8' }
   )
 
-  // TODO: ここでsettings.jsonから設定値を読み取る
-
   const lineString = readedKeybindingsJsonFile.split('\n')
 
   const processedJsonString = lineString.filter((it) => {
@@ -121,4 +104,13 @@ async function parseKeybindingsJson() {
     .map((it) => new KeybindingsJson(it.key, it.command, it.when))
 
   return keybindingsJson
+}
+
+async function parseKeybindingsFromSettingJson() {
+  const config = await vscode.workspace.getConfiguration('myshortcutviewer')
+  const shortcuts = config.get('myshortcut') as KeybindingsJson[]
+
+  console.dir(shortcuts)
+
+  return shortcuts
 }

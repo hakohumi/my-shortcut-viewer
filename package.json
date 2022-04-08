@@ -20,22 +20,24 @@
         "title": "Hello World"
       }
     ],
+    "keybindings": [
+      {
+        "command": "myshortcutviewer.helloWorld",
+        "key": "alt+shift+t"
+      }
+    ],
     "configuration": {
       "title": "MyShortcutViewer",
       "properties": {
-        "myshortcutviewer.test": {
+        "myshortcutviewer.myshortcut": {
           "type": "array",
-          "default": [],
-          "markdownDescription": "markdown text",
-          "editPresentation": "singlelineText"
-        },
-        "myshortcutviewer.test2": {
-          "type": [
-            "string",
-            "object"
+          "default": [
+            {
+              "command": "command",
+              "key": "key"
+            }
           ],
-          "default": "null",
-          "description": "test2 "
+          "description": "test1"
         }
       }
     }
