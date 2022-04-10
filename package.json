@@ -33,8 +33,7 @@
           "type": "array",
           "default": [
             {
-              "command": "command",
-              "key": "key"
+              "command": "command"
             }
           ],
           "description": "test1"
