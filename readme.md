@@ -29,3 +29,14 @@ or
 現在
 
 - keybindings.jsonから、ユーザが変更したことのあるショートカットを読み込み、コマンドパレットで選択し実行できる機能となっている。
+
+### TODO
+
+- [x] settings.jsonに登録したコマンドを取得できる
+- [x] settings.jsonから取得したコマンドのkeyを取得する
+  - [x] keybindings.jsonからコマンドとkeyを取得する。
+  - [x] settings.jsonで取得したコマンドを結合し、keyを対応させる。
+- [x] コマンドパレットの場所にsettings.jsonで取得したコマンドとkeyを表示させる。
+- [x] コマンドパレットで表示させたコマンドを選択するとコマンドが実行できる。
+- [ ] settings.jsonにコマンドを追加する時、候補を表示させる。
+- [ ] settings.jsonに変な値が入った場合の処理。

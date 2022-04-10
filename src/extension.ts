@@ -1,6 +1,5 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
-import { dir } from 'console'
 import { promises as fs } from 'fs'
 import * as vscode from 'vscode'
 import { QuickPickItem } from 'vscode'
@@ -13,10 +12,6 @@ export async function activate(context: vscode.ExtensionContext) {
   // 使用できるコマンド一覧を取得する
   const getCommands = await vscode.commands.getCommands()
 
-  // const keybindings = await parseKeybindingsJson()
-
-  // TODO: 表示したいコマンドのキーバインドをデフォルト設定から取得する
-
   let disposable = vscode.commands.registerCommand(
     'myshortcutviewer.helloWorld',
     async () => {
@@ -25,25 +20,32 @@ export async function activate(context: vscode.ExtensionContext) {
         const config = await vscode.workspace.getConfiguration(
           'myshortcutviewer'
         )
-        const shortcuts = config.get('myshortcut') as KeybindingsJson[]
-
-        const allconfig = await vscode.workspace.getConfiguration('')
-
-        const testconfig = JSON.stringify(allconfig, null, 2)
-
-        console.log(`here ${testconfig}`)
+        const shortcuts = config.get('myshortcut') as string[]
 
         return shortcuts
       }
 
-      // TODO: 表示したいコマンドのキーバインドを抽出する
+      const myKeybindings = await parseKeybindingsJson()
 
-      const items = (await settingskeybindings()).map((it): QuickPickItem => {
-        return {
-          label: it.command,
-          description: `${it.key}`,
+      const items = (await settingskeybindings()).map(
+        (myCommand): QuickPickItem => {
+          const hasMyCommand = myKeybindings.find(
+            (myKeybinding) => myKeybinding.command === myCommand
+          )
+
+          if (hasMyCommand === undefined) {
+            // TODO: 既定のショートカットキーの場合、エラーとなる
+            // TODO既定のショートカットを取得できる方法を探す
+
+            throw Error(`find not ${myCommand} command in myKeybindings`)
+          }
+
+          return {
+            label: myCommand,
+            description: `${hasMyCommand.key}`,
+          }
         }
-      })
+      )
 
       vscode.window
         .showQuickPick(items, {
@@ -64,8 +66,6 @@ export async function activate(context: vscode.ExtensionContext) {
             console.log(`find not command => ${item.label}`)
             return
           }
-
-          console.log(`pre ${typeof command}`)
 
           vscode.commands.executeCommand(item.label)
         })
@@ -92,14 +92,16 @@ class KeybindingsJson {
 }
 
 async function parseKeybindingsJson() {
+  const userHome =
+    process.env[process.platform === 'win32' ? 'USERPROFILE' : 'HOME']
+  if (userHome === undefined) {
+    throw Error('not env user home path')
+  }
+
   const readedKeybindingsJsonFile = await fs
-    .readFile(
-      // '%userprofile%\\AppData\\Roaming\\Code\\User\\keybindings.json',
-      // TODO: 個々の環境に依存している
-      // 'C:\\Users\\Filu\\AppData\\Roaming\\Code\\User\\keybindings.json',
-      'keybindings.json',
-      { encoding: 'utf-8' }
-    )
+    .readFile(`${userHome}\\AppData\\Roaming\\Code\\User\\keybindings.json`, {
+      encoding: 'utf-8',
+    })
     .catch(() => {
       throw Error('error not found keybinds.json')
     })
@@ -116,7 +118,7 @@ async function parseKeybindingsJson() {
     JSON.parse(preProcessedJsonString) as KeybindingsJson[]
   )
     .filter((it) => it.command.slice(0, 1) !== '-')
-    .map((it) => new KeybindingsJson(it.key, it.command, it.when))
+    .map((it) => new KeybindingsJson(it.command, it.key, it.when))
 
   return keybindingsJson
 }
