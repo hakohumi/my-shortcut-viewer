@@ -8,6 +8,20 @@ export async function activate(context: vscode.ExtensionContext) {
   console.log(
     'Congratulations, your extension "myshortcutviewer" is now active!'
   )
+  const defaultKeybindingsJson = await vscode.commands
+    .executeCommand(
+      // 'keybindings.editor.searchKeybindings',
+      // 'keybindings.editor.showDefaultKeybindings'
+      // 'workbench.action.openGlobalKeybindingsFile',
+      'workbench.action.openDefaultKeybindingsFile'
+    )
+    .then(async () => {
+      await vscode.commands.executeCommand('editor.action.selectAll')
+      await vscode.commands.executeCommand('editor.action.clipboardCopyAction')
+      await vscode.commands.executeCommand('workbench.action.closeActiveEditor')
+      return await vscode.env.clipboard.readText()
+    })
+  const defaultKeybindings = await parseKeybindingsJson(defaultKeybindingsJson)
 
   // 使用できるコマンド一覧を取得する
   const getCommands = await vscode.commands.getCommands()
@@ -25,24 +39,45 @@ export async function activate(context: vscode.ExtensionContext) {
         return shortcuts
       }
 
-      const myKeybindings = await parseKeybindingsJson()
+      const userHome =
+        process.env[process.platform === 'win32' ? 'USERPROFILE' : 'HOME']
+      if (userHome === undefined) {
+        throw Error('not env user home path')
+      }
+
+      const readedKeybindingsJsonFile = await fs
+        .readFile(
+          `${userHome}\\AppData\\Roaming\\Code\\User\\keybindings.json`,
+          {
+            encoding: 'utf-8',
+          }
+        )
+        .catch(() => {
+          throw Error('error not found keybinds.json')
+        })
+
+      const myKeybindings = await parseKeybindingsJson(
+        readedKeybindingsJsonFile
+      )
 
       const items = (await settingskeybindings()).map(
         (myCommand): QuickPickItem => {
-          const hasMyCommand = myKeybindings.find(
+          const description = myKeybindings.find(
             (myKeybinding) => myKeybinding.command === myCommand
           )
 
-          if (hasMyCommand === undefined) {
-            // TODO: 既定のショートカットキーの場合、エラーとなる
-            // TODO既定のショートカットを取得できる方法を探す
+          const description2 = defaultKeybindings.find((defaultKeybinding) => {
+            return defaultKeybinding.command === myCommand
+          })
+          console.log(`${description2?.command} === ${myCommand}`)
 
+          if (description === undefined && description2 === undefined) {
             throw Error(`find not ${myCommand} command in myKeybindings`)
           }
 
           return {
             label: myCommand,
-            description: `${hasMyCommand.key}`,
+            description: `${description?.key ?? description2!.key}`,
           }
         }
       )
@@ -91,28 +126,16 @@ class KeybindingsJson {
   }
 }
 
-async function parseKeybindingsJson() {
-  const userHome =
-    process.env[process.platform === 'win32' ? 'USERPROFILE' : 'HOME']
-  if (userHome === undefined) {
-    throw Error('not env user home path')
-  }
-
-  const readedKeybindingsJsonFile = await fs
-    .readFile(`${userHome}\\AppData\\Roaming\\Code\\User\\keybindings.json`, {
-      encoding: 'utf-8',
-    })
-    .catch(() => {
-      throw Error('error not found keybinds.json')
-    })
-
+async function parseKeybindingsJson(readedKeybindingsJsonFile: string) {
   const lineString = readedKeybindingsJsonFile.split('\n')
 
   const processedJsonString = lineString.filter((it) => {
-    return it.indexOf('//') === -1
+    return it.slice(0, 2) !== '//'
   })
 
-  const preProcessedJsonString = processedJsonString.join('\n')
+  const preProcessedJsonString = processedJsonString.join('')
+
+  vscode.env.clipboard.writeText(preProcessedJsonString)
 
   const keybindingsJson = (
     JSON.parse(preProcessedJsonString) as KeybindingsJson[]
