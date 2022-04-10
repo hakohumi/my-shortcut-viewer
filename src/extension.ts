@@ -1,33 +1,44 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
+import { dir } from 'console'
 import { promises as fs } from 'fs'
 import * as vscode from 'vscode'
 import { QuickPickItem } from 'vscode'
 
-// this method is called when your extension is activated
-// your extension is activated the very first time the command is executed
 export async function activate(context: vscode.ExtensionContext) {
-  // Use the console to output diagnostic information (console.log) and errors (console.error)
-  // This line of code will only be executed once when your extension is activated
   console.log(
     'Congratulations, your extension "myshortcutviewer" is now active!'
   )
 
+  // 使用できるコマンド一覧を取得する
   const getCommands = await vscode.commands.getCommands()
 
   // const keybindings = await parseKeybindingsJson()
 
-  // The command has been defined in the package.json file
-  // Now provide the implementation of the command with registerCommand
-  // The commandId parameter must match the command field in package.json
+  // TODO: 表示したいコマンドのキーバインドをデフォルト設定から取得する
+
   let disposable = vscode.commands.registerCommand(
     'myshortcutviewer.helloWorld',
     async () => {
-      // The code you place here will be executed every time your command is executed
-      // Display a message box to the user
-      const settingskeybindings = await parseKeybindingsFromSettingJson()
+      // settings.jsonから表示させたいコマンドを取得する
+      const settingskeybindings = async () => {
+        const config = await vscode.workspace.getConfiguration(
+          'myshortcutviewer'
+        )
+        const shortcuts = config.get('myshortcut') as KeybindingsJson[]
 
-      const items = settingskeybindings.map((it): QuickPickItem => {
+        const allconfig = await vscode.workspace.getConfiguration('')
+
+        const testconfig = JSON.stringify(allconfig, null, 2)
+
+        console.log(`here ${testconfig}`)
+
+        return shortcuts
+      }
+
+      // TODO: 表示したいコマンドのキーバインドを抽出する
+
+      const items = (await settingskeybindings()).map((it): QuickPickItem => {
         return {
           label: it.command,
           description: `${it.key}`,
@@ -66,7 +77,6 @@ export async function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(disposable)
 }
 
-// this method is called when your extension is deactivated
 export function deactivate() {}
 
 class KeybindingsJson {
@@ -82,12 +92,17 @@ class KeybindingsJson {
 }
 
 async function parseKeybindingsJson() {
-  const readedKeybindingsJsonFile = await fs.readFile(
-    // '%userprofile%\\AppData\\Roaming\\Code\\User\\keybindings.json',
-    // TODO: 個々の環境に依存している
-    'C:\\Users\\Filu\\AppData\\Roaming\\Code\\User\\keybindings.json',
-    { encoding: 'utf-8' }
-  )
+  const readedKeybindingsJsonFile = await fs
+    .readFile(
+      // '%userprofile%\\AppData\\Roaming\\Code\\User\\keybindings.json',
+      // TODO: 個々の環境に依存している
+      // 'C:\\Users\\Filu\\AppData\\Roaming\\Code\\User\\keybindings.json',
+      'keybindings.json',
+      { encoding: 'utf-8' }
+    )
+    .catch(() => {
+      throw Error('error not found keybinds.json')
+    })
 
   const lineString = readedKeybindingsJsonFile.split('\n')
 
@@ -104,13 +119,4 @@ async function parseKeybindingsJson() {
     .map((it) => new KeybindingsJson(it.key, it.command, it.when))
 
   return keybindingsJson
-}
-
-async function parseKeybindingsFromSettingJson() {
-  const config = await vscode.workspace.getConfiguration('myshortcutviewer')
-  const shortcuts = config.get('myshortcut') as KeybindingsJson[]
-
-  console.dir(shortcuts)
-
-  return shortcuts
 }
