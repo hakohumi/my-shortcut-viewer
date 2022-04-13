@@ -9,9 +9,7 @@ export async function activate(context: vscode.ExtensionContext) {
     'Congratulations, your extension "myshortcutviewer" is now active!'
   )
   const defaultKeybindingsJson = await vscode.commands
-    .executeCommand(
-      'workbench.action.openDefaultKeybindingsFile'
-    )
+    .executeCommand('workbench.action.openDefaultKeybindingsFile')
     .then(async () => {
       await vscode.commands.executeCommand('editor.action.selectAll')
       await vscode.commands.executeCommand('editor.action.clipboardCopyAction')
