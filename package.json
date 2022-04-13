@@ -29,7 +29,7 @@
     "configuration": {
       "title": "MyShortcutViewer",
       "properties": {
-        "myshortcutviewer.myshortcut": {
+        "myshortcutviewer.myshortcuts": {
           "type": "array",
           "default": [
             {

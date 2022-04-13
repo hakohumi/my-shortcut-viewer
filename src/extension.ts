@@ -31,7 +31,7 @@ export async function activate(context: vscode.ExtensionContext) {
         const config = await vscode.workspace.getConfiguration(
           'myshortcutviewer'
         )
-        const shortcuts = config.get('myshortcut') as string[]
+        const shortcuts = config.get('myshortcuts') as string[]
 
         return shortcuts
       }
