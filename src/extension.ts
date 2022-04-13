@@ -28,7 +28,16 @@ export async function activate(context: vscode.ExtensionContext) {
         const config = await vscode.workspace.getConfiguration(
           'myshortcutviewer'
         )
-        const shortcuts = config.get('myshortcuts') as string[]
+        const shortcuts = config.get<string[] | null>('myshortcuts', null)
+        if (shortcuts === null) {
+          console.log(
+            'find not myshortcutviewer.myshorcuts key in settings.json.'
+          )
+          return []
+        } else if (shortcuts.length === 0) {
+          console.log('myshortcutviewer.myshorcuts key is empty.')
+          return []
+        }
 
         return shortcuts
       }
