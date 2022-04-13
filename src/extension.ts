@@ -18,7 +18,7 @@ export async function activate(context: vscode.ExtensionContext) {
   const defaultKeybindings = await parseKeybindingsJson(defaultKeybindingsJson)
 
   // 使用できるコマンド一覧を取得する
-  const getCommands = await vscode.commands.getCommands()
+  const getAllCommandsOfVSCode = await vscode.commands.getCommands()
 
   let disposable = vscode.commands.registerCommand(
     'myshortcutviewer.showShortcut',
