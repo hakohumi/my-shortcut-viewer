@@ -10,9 +10,11 @@ export async function activate(context: vscode.ExtensionContext) {
   const defaultKeybindingsJson = await vscode.commands
     .executeCommand('workbench.action.openDefaultKeybindingsFile')
     .then(async () => {
+      // TODO: 今のクリップボードを退避
       await vscode.commands.executeCommand('editor.action.selectAll')
       await vscode.commands.executeCommand('editor.action.clipboardCopyAction')
       await vscode.commands.executeCommand('workbench.action.closeActiveEditor')
+      // TODO: クリップボードの中身を戻す
       return await vscode.env.clipboard.readText()
     })
   const defaultKeybindings = await parseKeybindingsJson(defaultKeybindingsJson)
@@ -21,7 +23,7 @@ export async function activate(context: vscode.ExtensionContext) {
   const getAllCommandsOfVSCode = await vscode.commands.getCommands()
 
   let disposable = vscode.commands.registerCommand(
-    'myshortcutviewer.showShortcut',
+    'myshortcutviewer.showShortcuts',
     async () => {
       // settings.jsonから表示させたいコマンドを取得する
       const settingskeybindings = async () => {

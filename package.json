@@ -10,19 +10,19 @@
     "Other"
   ],
   "activationEvents": [
-    "onCommand:myshortcutviewer.showShortcut"
+    "onCommand:myshortcutviewer.showShortcuts"
   ],
   "main": "./out/extension.js",
   "contributes": {
     "commands": [
       {
-        "command": "myshortcutviewer.showShortcut",
+        "command": "myshortcutviewer.showShortcuts",
         "title": "登録したショートカットを表示する。"
       }
     ],
     "keybindings": [
       {
-        "command": "myshortcutviewer.showShortcut",
+        "command": "myshortcutviewer.showShortcuts",
         "key": "alt+shift+t"
       }
     ],
@@ -30,13 +30,14 @@
       "title": "MyShortcutViewer",
       "properties": {
         "myshortcutviewer.myshortcuts": {
-          "type": "array",
-          "default": [
-            {
-              "command": "command"
-            }
+          "type": [
+            "array",
+            "string"
           ],
-          "description": "test1"
+          "default": [
+            "myshortcutviewer.showShortcut"
+          ],
+          "description": "表示したい拡張機能のIDを追記する。"
         }
       }
     }
