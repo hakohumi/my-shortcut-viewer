@@ -10,12 +10,17 @@ export async function activate(context: vscode.ExtensionContext) {
   const defaultKeybindingsJson = await vscode.commands
     .executeCommand('workbench.action.openDefaultKeybindingsFile')
     .then(async () => {
-      // TODO: 今のクリップボードを退避
+      const beforeClipboardValue = await vscode.env.clipboard.readText()
+
       await vscode.commands.executeCommand('editor.action.selectAll')
       await vscode.commands.executeCommand('editor.action.clipboardCopyAction')
       await vscode.commands.executeCommand('workbench.action.closeActiveEditor')
-      // TODO: クリップボードの中身を戻す
-      return await vscode.env.clipboard.readText()
+
+      const afterClipboardValue = await vscode.env.clipboard.readText()
+
+      await vscode.env.clipboard.writeText(beforeClipboardValue)
+
+      return afterClipboardValue
     })
   const defaultKeybindings = await parseKeybindingsJson(defaultKeybindingsJson)
 
