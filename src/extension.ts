@@ -5,9 +5,8 @@ import * as vscode from 'vscode'
 import { QuickPickItem } from 'vscode'
 
 export async function activate(context: vscode.ExtensionContext) {
-  console.log(
-    'Congratulations, your extension "myshortcutviewer" is now active!'
-  )
+  console.log('"myshortcutviewer" is start')
+
   const defaultKeybindingsJson = await vscode.commands
     .executeCommand('workbench.action.openDefaultKeybindingsFile')
     .then(async () => {
