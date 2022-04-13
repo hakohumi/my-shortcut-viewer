@@ -95,8 +95,7 @@ export async function activate(context: vscode.ExtensionContext) {
           const command = getCommands.find((it) => it === item.label)
 
           if (command === undefined) {
-            console.log(`find not command => ${item.label}`)
-            return
+            throw Error(`find not ${item.label} command in myKeybindings`)
           }
 
           vscode.commands.executeCommand(item.label)
