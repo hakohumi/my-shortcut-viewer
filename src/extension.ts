@@ -64,10 +64,19 @@ export async function activate(context: vscode.ExtensionContext) {
           const description2 = defaultKeybindings.find((defaultKeybinding) => {
             return defaultKeybinding.command === myCommand
           })
-          console.log(`${description2?.command} === ${myCommand}`)
 
           if (description === undefined && description2 === undefined) {
-            throw Error(`find not ${myCommand} command in myKeybindings`)
+            throw Error(`find not ${myCommand} command in Keybindings`)
+          }
+
+          const searchedCommand = getAllCommandsOfVSCode.find(
+            (it) => it === myCommand
+          )
+
+          if (searchedCommand === undefined) {
+            throw Error(
+              `find not ${myCommand} command in all commands of VSCode`
+            )
           }
 
           return {
@@ -88,13 +97,8 @@ export async function activate(context: vscode.ExtensionContext) {
           }
 
           console.log(`selected ${item.label}`)
+
           vscode.window.showInformationMessage(`selected ${item.label}`)
-
-          const command = getCommands.find((it) => it === item.label)
-
-          if (command === undefined) {
-            throw Error(`find not ${item.label} command in myKeybindings`)
-          }
 
           vscode.commands.executeCommand(item.label)
         })
