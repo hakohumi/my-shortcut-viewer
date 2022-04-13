@@ -24,7 +24,7 @@ export async function activate(context: vscode.ExtensionContext) {
   const getCommands = await vscode.commands.getCommands()
 
   let disposable = vscode.commands.registerCommand(
-    'myshortcutviewer.helloWorld',
+    'myshortcutviewer.showShortcut',
     async () => {
       // settings.jsonから表示させたいコマンドを取得する
       const settingskeybindings = async () => {
