@@ -10,9 +10,6 @@ export async function activate(context: vscode.ExtensionContext) {
   )
   const defaultKeybindingsJson = await vscode.commands
     .executeCommand(
-      // 'keybindings.editor.searchKeybindings',
-      // 'keybindings.editor.showDefaultKeybindings'
-      // 'workbench.action.openGlobalKeybindingsFile',
       'workbench.action.openDefaultKeybindingsFile'
     )
     .then(async () => {
