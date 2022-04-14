@@ -148,8 +148,6 @@ async function parseKeybindingsJson(readedKeybindingsJsonFile: string) {
 
   const preProcessedJsonString = processedJsonString.join('')
 
-  vscode.env.clipboard.writeText(preProcessedJsonString)
-
   const keybindingsJson = (
     JSON.parse(preProcessedJsonString) as KeybindingsJson[]
   )
