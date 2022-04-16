@@ -22,7 +22,8 @@
     "commands": [
       {
         "command": "myshortcutviewer.showShortcuts",
-        "title": "登録したショートカットを表示する。"
+        "title": "登録したショートカットを表示する",
+        "category": "MyShortcutViewer"
       }
     ],
     "keybindings": [
@@ -40,9 +41,9 @@
             "string"
           ],
           "default": [
-            "myshortcutviewer.showShortcut"
+            "myshortcutviewer.showShortcuts"
           ],
-          "description": "表示したい拡張機能のIDを追記する。"
+          "description": "表示したいコマンドのID"
         }
       }
     }
