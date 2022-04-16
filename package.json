@@ -40,9 +40,7 @@
             "array",
             "string"
           ],
-          "default": [
-            "myshortcutviewer.showShortcuts"
-          ],
+          "default": [],
           "description": "表示したいコマンドのID"
         }
       }
